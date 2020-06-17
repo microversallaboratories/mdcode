@@ -20,9 +20,9 @@
 # POST-CONDITIONS: A matrix of protein-ligand combos to test is generated and returned
 #####################################################################
 def permute_prolig(pros, ligs):
-    #
+	# 
 
-    return  
+	return  
 
 #####################################################################
 # NAME: bindsim_gmx
@@ -33,11 +33,11 @@ def permute_prolig(pros, ligs):
 # POST-CONDITIONS: Trajectories are saved in a folder in the PWD
 #####################################################################
 def bindsim_gmx(proligs):
-    ##
-    ##
-    ##
-    ##
-    return
+	##
+	##
+	##
+	##
+	return
 
 #####################################################################
 # NAME: 

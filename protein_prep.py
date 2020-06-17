@@ -20,23 +20,23 @@
 # POST-CONDITIONS: <pro>_processed.pdb is output to the PWD
 #####################################################################
 def clean_pdb(pro, max_breaks):
-    ## CHECK INPUT
-    # Verify files are in the PWD
-    # Verify len(res_exclud) < len(res_pdb)
+	## CHECK INPUT
+	# Verify files are in the PWD
+	# Verify len(res_exclud) < len(res_pdb)
 
-    ## LOOP THROUGH RESIDUES, REMOVE UNNEEDED ONES
-    # For each residue in the PDB file,
-    # If !protein and !in_res_excluded,
-    # Delete from the PDB structure
+	## LOOP THROUGH RESIDUES, REMOVE UNNEEDED ONES
+	# For each residue in the PDB file,
+	# If !protein and !in_res_excluded,
+	# Delete from the PDB structure
 
-    ## VALIDATE STRUCTURE PRODUCED
-    # If num_breaks > max_breaks
-    # Return error
-    
-    ## SAVE FILE
-    # Save final structure to <pro>_processed.pdb
+	## VALIDATE STRUCTURE PRODUCED
+	# If num_breaks > max_breaks
+	# Return error
+	
+	## SAVE FILE
+	# Save final structure to <pro>_processed.pdb
 
-    return
+	return
 
 #####################################################################
 # NAME: ensemble_sampler
@@ -47,17 +47,17 @@ def clean_pdb(pro, max_breaks):
 # POST-CONDITIONS: Ensemble is returned to the PWD, calculated using ensemblator
 #####################################################################
 def ensemble_sampler(pro_list, num):
-    ## CHECK INPUT
-    # Verify files are in the PWD
-    # Verify num > 2
-    # Else, exit
+	## CHECK INPUT
+	# Verify files are in the PWD
+	# Verify num > 2
+	# Else, exit
 
-    ## RUN ENSEMBLATOR ON PDBLIST, SUPPRESS SOME OUTPUT
-    # Prepare ...
-    # ...
+	## RUN ENSEMBLATOR ON PDBLIST, SUPPRESS SOME OUTPUT
+	# Prepare ...
+	# ...
 
-    ## RETURN ENSEMBLE
-    return
+	## RETURN ENSEMBLE
+	return
 
 #####################################################################
 # NAME: 
