@@ -17,10 +17,9 @@ JLN_SIM_PATH=$JLN_DATAPATH/$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP
 JLN_ANAPATH=$JLN_SIM_PATH/analysis		# Analysis filepath
 
 # Make a directory for the current simulation (ANAPATH creates all three target directories)
-mkdir -p /Users/jacobnorth/"$JLN_ANAPATH"
-
-echo "Simulation filepath is:"
-echo ${JLN_SIM_PATH}
+#mkdir -p /Users/jacobnorth/"$JLN_ANAPATH"
+#echo "Simulation filepath is:"
+#echo ${JLN_SIM_PATH}
 
 #%%%%%%%%%%%%%%%%%%%</CONFIGURATION>%%%%%%%%%%%%%%%%%%%#
 
@@ -38,11 +37,11 @@ GROMACS_BOXSIZE="5.0"				# Def boxsize
 GROMACS_BOXCENTER="2.5"				# Def boxcenter
 
 # Setup GROMACS Job. Probably not necessary to edit past this point.
-if [ -z "$JLN_SIM_PATH/$GROMACS_PDB" ]; then
-	echo "USAGE: ./setup_GROMACS_job.sh pdb_filename"
-	echo "Do NOT include the .pdb extension in the file name."
-	exit
-fi
+#if [ -z "$JLN_SIM_PATH/$GROMACS_PDB" ]; then
+#	echo "USAGE: ./setup_GROMACS_job.sh pdb_filename"
+#	echo "Do NOT include the .pdb extension in the file name."
+#	exit
+#fi
 
 #%%%%%%%%%%%%%%%%%%%</GROMACS CONF>%%%%%%%%%%%%%%%%%%%%#
 

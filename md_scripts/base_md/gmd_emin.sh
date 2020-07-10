@@ -4,4 +4,4 @@
 gmx mdrun -v -deffnm em
 
 # Plot energy chart for eminim 
-gmx energy -f em.edr -o potential.xvg
+#gmx energy -f em.edr -o potential.xvg

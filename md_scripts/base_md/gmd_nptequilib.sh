@@ -10,7 +10,7 @@ gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
 gmx mdrun -deffnm npt
 
 # Create plot of pressure, ensure T is stable
-gmx energy -f npt.edr -o pressure.xvg
+#gmx energy -f npt.edr -o pressure.xvg
 
 # Create plot of density
-gmx energy -f npt.edr -o density.xvg
+#gmx energy -f npt.edr -o density.xvg
