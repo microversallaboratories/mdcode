@@ -32,10 +32,17 @@ cd to_test
 # Download the selected ZINC15 tranches
 bash ZINC-downloader-3D-pdbqt.gz.wget
 
-# Process the waterless file	(ASSUMES that water isn't important for the ligand interactions to the protein surface!!!)
+# Process the waterless file with obabel	(ASSUMES that water isn't important for the ligand interactions to the protein surface!!!)
 obabel R.pdb -O temp.pdbqt -xh				# Setup a bounce file with all information from R.pdb
 grep ATOM temp.pdbqt > receptor.pdbqt		# Place atoms in the receptor PDBqt file
 
 # Unzip all the files in the folders downloaded from ZINC15
 gunzip leads/*/*/*.gz
 
+# Load the docking conda module:
+# conda activate docking
+
+# Run the docking sim, pick one:
+# bash run_adv.sh
+# bash run_qv2.sh
+# bash run_qvw.sh
