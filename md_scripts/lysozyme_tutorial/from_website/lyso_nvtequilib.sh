@@ -4,10 +4,10 @@
 wget http://www.mdtutorials.com/gmx/lysozyme/Files/nvt.mdp
 
 # Run an NVT equilibration
-gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
 
 # Run the NVT equilibration
-gmx mdrun -deffnm nvt
+mdrun -deffnm nvt
 
 # Create plot of temperature, ensure T is stable
-gmx energy -f nvt.edr -o temperature.xvg
+energy -f nvt.edr -o temperature.xvg

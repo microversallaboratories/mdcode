@@ -11,7 +11,7 @@ JLN_SIM_TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
 JLN_SIM_TYPE='mdsim'
 
 # Define PDB Filename, paths, & GROMACS Pameters
-JLN_SIM_PDBNAME='1aki'			# Should eventually take this in at runtime!
+JLN_SIM_PDBNAME='3k0n'			# Should eventually take this in at runtime!
 JLN_DATAPATH=/Users/jacobnorth/Box/extracurriculars/research/SURE_S2020_fileshare/sure_data		# Datafile path
 JLN_SIM_PATH=$JLN_DATAPATH/$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP}"		# Simulation-specific datafile path
 JLN_ANAPATH=$JLN_SIM_PATH/analysis		# Analysis filepath
