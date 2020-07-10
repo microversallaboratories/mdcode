@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Give the job a name
-#$ -N emin_nvt_npt_equilibrations
+#$ -N emin_nvt_npt_equilibration
 
 # set the shell
 #$ -S /bin/sh
@@ -37,8 +37,8 @@ module load gromacs/2019-4	# load GMX
 ############################################<RUN COMMANDS>############################################
 
 bash gmd_emin.sh	# Call emin
-bash gmd_nptequilib.sh	# Call nvt equilib
-bash gmd_nvtequilib.sh	# Call npt equilib
+bash gmd_nvtequilib.sh	# Call nvt equilib
+bash gmd_nptequilib.sh	# Call npt equilib
 
 ############################################</RUN COMMANDS>###########################################
 

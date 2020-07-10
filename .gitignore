@@ -1,0 +1,13 @@
+*.pdb
+*.mdp
+*.itp
+*.top*
+*.trr
+*.tpr
+*.log
+*.gro
+*.edr
+*.cpt
+*.xtc
+*.txt
+*.err

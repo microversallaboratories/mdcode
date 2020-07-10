@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Download the .mdp for the NVT equilib
-wget http://www.mdtutorials.com/gmx/lysozyme/Files/npt.mdp
+wget http://www.mdtutorials.com/gmx/lysozyme/Files/md.mdp
 
-# Pre-process the input files, prediec PME load
+# Pre-process the input files, predict PME load
 gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
 
-# Run the NVT equilibration:
+# Run the production MD sim:
 gmx mdrun -deffnm md_0_1	# ON CPU
 # mdrun -deffnm md_0_1 -nb gpu	# ON ONE GPU
 # ON MULTIPLE GPUS???

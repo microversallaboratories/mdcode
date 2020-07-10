@@ -12,12 +12,13 @@ JLN_SIM_TYPE='mdsim'
 
 # Define PDB Filename, paths, & GROMACS Pameters
 JLN_SIM_PDBNAME=$1			# Take in first cmdlnarg
-JLN_DATAPATH=/Users/jacobnorth/Box/extracurriculars/research/SURE_S2020_fileshare/sure_data		# Datafile path
-JLN_SIM_PATH=$JLN_DATAPATH/$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP}"		# Simulation-specific datafile path
-JLN_ANAPATH=$JLN_SIM_PATH/analysis		# Analysis filepath
+#JLN_DATAPATH=/Users/jacobnorth/Box/extracurriculars/research/SURE_S2020_fileshare/sure_data		# Datafile path
+#JLN_SIM_PATH=$JLN_DATAPATH/$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP}"		# Simulation-specific datafile path
+JLN_SIM_PATH=$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP}"		# Simulation-specific datafile path
+#JLN_ANAPATH=$JLN_SIM_PATH/analysis		# Analysis filepath
 
 # Make a directory for the current simulation (ANAPATH creates all three target directories)
-#mkdir -p /Users/jacobnorth/"$JLN_ANAPATH"
+mkdir -p "$JLN_SIM_PATH"
 #echo "Simulation filepath is:"
 #echo ${JLN_SIM_PATH}
 
@@ -60,6 +61,16 @@ done
 # Clean the file by removing water molecules
 #grep -v $PDB_REMOVE ${GROMACS_PDB}.pdb > ${GROMACS_PDB}_clean.pdb
 #echo "File cleaned of unwanted res by grep"
+############################################<LOAD MODULES>############################################
+
+# Load a module, if needed
+module unload gcc/5.1.0		# remove earlier gcc
+module load gcc/9.2.0		# load new gcc
+module load gromacs/2019-4	# load GMX
+
+############################################</LOAD MODULES>###########################################
+
+############################################<RUN COMMANDS>############################################
 
 # Convert the file to a .gro file with pdb2gmx
 #pdb2gmx -f ${GROMACS_PDB}_clean.pdb -o ${GROMACS_PDB}_processed.gro -water ${GROMACS_WATERMODEL}	# Process the file after removing water
@@ -99,3 +110,13 @@ gmx grompp -f minim.mdp -c ${GROMACS_PDB}_solv_ions.gro -p topol.top -o em.tpr
 
 # RELOCATE FILES TO THE TIMESTAMPED DIRECTORY
 #bash gmd_relocate_sim_files.sh	# Relocate files
+
+############################################</RUN COMMANDS>###########################################
+
+############################################<UNLOAD MODULES>##########################################
+
+module unload gromacs/2019-4	# unload GMX
+module unload gcc/9.2.0		# unload new gcc, 
+module load gcc/5.1.0		# reload old gcc
+
+############################################</UNLOAD MODULES>#########################################
