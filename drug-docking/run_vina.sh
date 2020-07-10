@@ -23,26 +23,48 @@ echo ${JLN_SIM_PATH}
 #%%%%%%%%%%%%%%%%%%%</CONFIGURATION>%%%%%%%%%%%%%%%%%%%#
 
 # Change directory to the simulation path
-cd ${JLN_SIM_PATH}
+#cd ${JLN_SIM_PATH}
 
 # Create a directory to hold the files pulled from ZINC15
-mkdir to_test
-cd to_test
+#mkdir to_test
+#cd to_test
 
 # Download the selected ZINC15 tranches
-bash ZINC-downloader-3D-pdbqt.gz.wget
+python3 AutoDock.py -d ZINC-downloader-3D-pdbqt.gz.wget
+
+# Segment the large file into many files, with 24 structures per folder
+python3 AutoDock.py -s ZINC15.pdbqt 24
 
 # Process the waterless file with obabel	(ASSUMES that water isn't important for the ligand interactions to the protein surface!!!)
 obabel R.pdb -O temp.pdbqt -xh				# Setup a bounce file with all information from R.pdb
 grep ATOM temp.pdbqt > receptor.pdbqt		# Place atoms in the receptor PDBqt file
 
-# Unzip all the files in the folders downloaded from ZINC15
-gunzip leads/*/*/*.gz
+# Load the docking conda module, include vina, qvina2, and qvinaw (including split versions)
+#conda activate docking
 
-# Load the docking conda module:
-# conda activate docking
+#%%%%%%%%%%%%%%%%%%%%<DIMENSIONS>%%%%%%%%%%%%%%%%%%%%%%#
+#c_x=8
+#c_y=-0.5
+#c_z=10
+#s_x=26
+#s_y=22
+#s_z=20
+
+#%%%%%%%%%%%%%%%%%%%</DIMENSIONS>%%%%%%%%%%%%%%%%%%%%%%#
+
+for f in ligands/*/*.pdbqt; do
+	vina --config vina_config.txt --ligand ${f} --out ${f}_out.pdbqt --cpu 2
+done
 
 # Run the docking sim, pick one:
-# bash run_adv.sh
-# bash run_qv2.sh
-# bash run_qvw.sh
+#vina --config vina_config.txt  --cpu 2 --out OUTPUT.pdbqt
+#vina_split --config vina_config.txt --cpu 2 --out OUTPUT.pdbqt
+
+#qvina2 --config vina_config.txt --cpu 2 --out OUTPUT.pdbqt
+#qvina2_split --config vina_config.txt --cpu 2 --out OUTPUT.pdbqt
+
+#qvinaw --config vina_config.txt --cpu 2 --out OUTPUT.pdbqt
+#qvinaw_split --config vina_config.txt --cpu 2 --out OUTPUT.pdbqt
+
+# Move files to the simulation path after the run is completed
+#mv ligands *.pdbqt ${JLN_SIM_PATH}

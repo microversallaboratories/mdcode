@@ -69,7 +69,6 @@ import numpy
 #import pymol
 import argparse
 import itertools
-import cmd2 as cmd
 #from pymol.cgo import *
 
 def center_of_box(selection):
