@@ -1,0 +1,28 @@
+# This file was created Fri Jul 10 10:49:04 2020
+# Created by:
+#                 :-) GROMACS - gmx energy, 2020.3-MODIFIED (-:
+# 
+# Executable:   /usr/local/bin/../Cellar/gromacs/2020.3/bin/gmx
+# Data prefix:  /usr/local/bin/../Cellar/gromacs/2020.3
+# Working dir:  /Users/jacobnorth/Documents/GitHub/mdcode/md_scripts/lysozyme_tutorial/from_website
+# Command line:
+#   gmx energy -f nvt.edr -o temperature.xvg
+# gmx energy is part of G R O M A C S:
+#
+# GROningen MAchine for Chemical Simulation
+#
+@    title "GROMACS Energies"
+@    xaxis  label "Time (ps)"
+@    yaxis  label "(kJ/mol)"
+@TYPE xy
+@ view 0.15, 0.15, 0.75, 0.85
+@ legend on
+@ legend box on
+@ legend loctype view
+@ legend 0.78, 0.8
+@ legend length 2
+@ s0 legend "Potential"
+    0.000000  -501269.343750
+    1.000000  -432670.625000
+    2.000000  -432495.843750
+    2.100000  -431949.968750

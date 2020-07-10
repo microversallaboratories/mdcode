@@ -10,4 +10,4 @@ rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns
 rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns
 
 # Calc Radius of gyration
-gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
+gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
