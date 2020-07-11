@@ -4,27 +4,20 @@
 
 #%%%%%%%%%%%%%%%%%%%%<CONFIGURATION>%%%%%%%%%%%%%%%%%%%#
 
-# Define the timestamp for the new simulation, to identify the simulation folder and files
-JLN_SIM_TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
-
-# Define the simulation type (prefix)
-JLN_SIM_TYPE='mdsim'
-
-# Define PDB Filename, paths, & GROMACS Pameters
-JLN_SIM_PDBNAME=$1			# Take in first cmdlnarg
+JLN_SIM_TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")  # Define the timestamp for the new simulation, to identify the simulation folder and files
+JLN_SIM_TYPE='mdsim'    # Define the simulation type (prefix)
+JLN_SIM_PDBNAME=$1			# Take in first cmdlnarg as the PDB filename to query
 #JLN_DATAPATH=/Users/jacobnorth/Box/extracurriculars/research/SURE_S2020_fileshare/sure_data		# Datafile path
 #JLN_SIM_PATH=$JLN_DATAPATH/$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP}"		# Simulation-specific datafile path
 JLN_SIM_PATH=$JLN_SIM_PDBNAME/"${JLN_SIM_TYPE}_${JLN_SIM_TIMESTAMP}"		# Simulation-specific datafile path
 #JLN_ANAPATH=$JLN_SIM_PATH/analysis		# Analysis filepath
-
-# Make a directory for the current simulation (ANAPATH creates all three target directories)
-mkdir -p "$JLN_SIM_PATH"
-#echo "Simulation filepath is:"
-#echo ${JLN_SIM_PATH}
+mkdir -p ${PWD}/${JLN_SIM_PATH}  # Make a directory for the current simulation (ANAPATH creates all three target directories)
+echo "Simulation filepath is:"
+echo ${JLN_SIM_PATH}
 
 #%%%%%%%%%%%%%%%%%%%</CONFIGURATION>%%%%%%%%%%%%%%%%%%%#
 
-#%%%%%%%%%%%%%%%%%%%<GROMACS CONF>%%%%%%%%%%%%%%%%%%%%%#
+#%%%%%%%%%%%%%%%%%%%<GROMACS CONFIG>%%%%%%%%%%%%%%%%%%%#
 
 # Gromacs parameters
 GROMACS_PDB=$1				# Take in first cmdlnarg
@@ -38,13 +31,13 @@ GROMACS_BOXSIZE="5.0"				# Def boxsize
 GROMACS_BOXCENTER="2.5"				# Def boxcenter
 
 # Setup GROMACS Job. Probably not necessary to edit past this point.
-#if [ -z "$JLN_SIM_PATH/$GROMACS_PDB" ]; then
-#	echo "USAGE: ./setup_GROMACS_job.sh pdb_filename"
-#	echo "Do NOT include the .pdb extension in the file name."
-#	exit
-#fi
+if [ -z "$JLN_SIM_PATH/$GROMACS_PDB" ]; then
+	echo "USAGE: ./setup_GROMACS_job.sh pdb_filename"
+	echo "Do NOT include the .pdb extension in the file name."
+	exit
+fi
 
-#%%%%%%%%%%%%%%%%%%%</GROMACS CONF>%%%%%%%%%%%%%%%%%%%%#
+#%%%%%%%%%%%%%%%%%%%</GROMACS CONFIG>%%%%%%%%%%%%%%%%%%#
 
 # Then, just call all those scripts in order :)
 
