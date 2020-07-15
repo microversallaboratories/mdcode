@@ -54,6 +54,7 @@ done
 # Clean the file by removing unwanted molecules
 #grep -v $PDB_REMOVE ${GROMACS_PDB}.pdb > ${GROMACS_PDB}_clean.pdb	# water molecules
 grep -v OKH ${GROMACS_PDB}.pdb > ${GROMACS_PDB}_clean.pdb	# ligand molecules
+grep -v HOH ${GROMACS_PDB}_clean.pdb > ${GROMACS_PDB}_nohho.pdb	# save a model w/o H2O for later
 
 echo "File cleaned of unwanted res by grep"
 ############################################<LOAD MODULES>############################################
