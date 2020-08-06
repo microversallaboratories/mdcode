@@ -15,3 +15,7 @@
 *.nmd*
 *.csv*
 *.hm*
+*.mol2
+*.sdf
+*.ent
+*.pdb
