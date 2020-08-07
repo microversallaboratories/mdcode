@@ -3,12 +3,22 @@
 Resources:
 * [Lemkul's ligand bound tutorial](http://www.mdtutorials.com/gmx/complex/01_pdb2gmx.html)
 
+0. Download (or obtain, say by docking) the wanted protein-ligand complex. If from the RCSB, use 
+```
+wget https://files.rcsb.org/view/${PDB_ID}.pdb
+```
 1. Extract the ligand from the PDB file (if obtained from RCSB) using grep.
 ```
 grep ${LIG_ID} ${PDB_ID}.pdb > ${LIG_ID}.pdb
 ```
-2. Check `{LIG_ID}.pdb` for irregularities using a text editor and Avogadro.
-3. Open `{LIG_ID}.pdb` in Avogadro. Select `Build > Add Hydrogens`, then `Save` the hydrogenated molecule. 
+2. Check `{LIG_ID}.pdb` for irregularities using a text editor and Avogadro. Rename the ligand name in the file to "LIG" for ease of use.
+```
+sed 's/708/LIG/g' ${LIG_ID}.pdb > lig.pdb
+```
+3. Open `{LIG_ID}.pdb` in Avogadro. Select `Build > Add Hydrogens`, then `Save As... > "lig_hydrog.pdb"` the hydrogenated molecule. The molecule now has a bunch of H atoms, but they're assigned to te molecule "UNL", instead of "LIG". Fix that by running this command:
+```
+sed 's/708/LIG/g' lig_hydrog.pdb > lig_proc.pdb
+```
 4. Calculate the charge on the molecule.
     * Webserver: [webchem ChargeCalculator](https://webchem.ncbr.muni.cz/Platform/ChargeCalculator)
 5. Submit your parameterization calculation to [Queensland University's tool](https://atb.uq.edu.au/index.py). It will return:
@@ -29,10 +39,57 @@ wget http://www.mdtutorials.com/gmx/complex/Files/ions.mdp
 ```
 9. Add ions as necessary.
 ```
-wget gmx grompp -f ions.mdp -c ${LIGAND_ID}_solv.gro 
+gmx grompp -f ions.mdp -c ${LIGAND_ID}_solv.gro 
 -p topol.top -o ions.tpr
 gmx genion -s ions.tpr -o solv_ions.gro -p topol.top -pname NA -nname CL -neutral
 ```
 
 Errors:
 * ["No such moleculetype"](http://www.gromacs.org/Documentation/Errors?highlight=gromacs#Fatal_error.3a_No_such_moleculetype_XXX)
+
+10. Run GROMPP to prepare for emin
+
+```
+gmx grompp -f params/em.mdp -c solv_ions.gro -p topol.top -o em.tpr
+```
+
+11. Run the energy minimization
+
+```
+gmx mdrun -v -deffnm em
+```
+
+12. Download an mdp file for nvt equilibration. **Edit so it says "LIG" and "SOL" instead of "Protein" and "Non-Protein" in the groups list:**
+
+```
+wget http://www.mdtutorials.com/gmx/lysozyme/Files/nvt.mdp
+```
+
+13. Run NVT equilibration
+```
+gmx grompp -f params/nvt.mdp -c em.gro -r em.gro -p ligand.top -o nvt.tpr
+gmx mdrun -deffnm nvt
+```
+
+14. Download an mdp file for NPT equilibration. **Edit so it says "LIG" and "SOL" instead of "Protein" and "Non-Protein" in the groups list:**
+```
+wget http://www.mdtutorials.com/gmx/lysozyme/Files/npt.mdp
+```
+
+14. Run NPT equilibration.
+```
+gmx grompp -f params/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p ligand.top -o npt.tpr
+gmx mdrun -deffnm npt
+```
+
+15. Download an MDP file for Production MD. **Edit so it says "LIG" and "SOL" instead of "Protein" and "Non-Protein" in the groups list:**
+
+```
+wget http://www.mdtutorials.com/gmx/lysozyme/Files/md.mdp
+```
+
+16. Run ProdMD.
+```
+gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
+gmx mdrun -deffnm md_0_1	# ON CPU
+```
