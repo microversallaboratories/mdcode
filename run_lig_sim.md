@@ -19,8 +19,9 @@ sed 's/708/LIG/g' ${LIG_ID}.pdb > lig.pdb
 ```
 sed 's/708/LIG/g' lig_hydrog.pdb > lig_proc.pdb
 ```
-4. Calculate the charge on the molecule.
+4. Calculate the charge on the molecule (**IF not zero; most of the time it's probably zero cause of valency**)
     * Webserver: [webchem ChargeCalculator](https://webchem.ncbr.muni.cz/Platform/ChargeCalculator)
+    * Visualize charge distribution: [webchem ChargeCalculator2](https://acc2.ncbr.muni.cz/)
 5. Submit your parameterization calculation to [Queensland University's tool](https://atb.uq.edu.au/index.py). It will return:
     * A GMX `.itp` file
     * (optionally) a forcefield revision compatible with nonstandard atom types.
@@ -30,7 +31,7 @@ gmx editconf -f ${LIGAND_ID}.pdb -o ${LIGAND_ID}_proc.gro
 ```
 7. Define the unit cell and fill it with water.
 ```
-gmx editconf -f ${LIGAND_ID}_proc.gro -o ${LIGAND_ID}_in_box.gro -bt dodecahedron -d 1.0
+gmx editconf -f ${LIGAND_ID}_proc.gro -o ${LIGAND_ID}_in_box.gro -c -d 1.0 -bt dodecahedron
 gmx solvate -cp ${LIGAND_ID}_in_box.gro -cs spc216.gro -p topol.top -o ${LIGAND_ID}_solv.gro
 ```
 8. Download a .mdp file.
@@ -93,3 +94,13 @@ wget http://www.mdtutorials.com/gmx/lysozyme/Files/md.mdp
 gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
 gmx mdrun -deffnm md_0_1	# ON CPU
 ```
+
+ERRORS:
+* [Coordinates error](https://www.researchgate.net/post/How_to_correct_the_number_of_coordinates_in_gromacs_file_solvgro_topoltop)
+* 
+
+USEFUL:
+* [trjconv manual](http://manual.gromacs.org/documentation/2018/onlinehelp/gmx-trjconv.html)
+* [ResearchGate post on normalizing trajectory to lowest RMSD, rot, trans invariance](https://www.researchgate.net/post/unwanted_rotation_in_gromacs)
+* [ChimeraX viewing a trajectory as set of frames](https://www.cgl.ucsf.edu/chimerax/docs/user/commands/coordset.html)
+* [GMX rotation matrix (rotmat)](http://manual.gromacs.org/archive/5.0.2/programs/gmx-rotmat.html)
