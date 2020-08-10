@@ -10,9 +10,7 @@ MAX_WARN=1
 gmx editconf -f ${LIGAND_ID}.pdb -o ${LIGAND_ID}_proc.gro
 
 # add name to topology.top
-## ADD CODE HERE TO DO THAT !!!!!
-# "${LIGAND_ID} \t ${NUM_LIG}" >> topol.top 
-# 
+echo -e "${LIGAND_ID} \t ${NUM_LIG}" >> topol.top  
 
 # define unit cell
 gmx editconf -f ${LIGAND_ID}_proc.gro -o ${LIGAND_ID}_in_box.gro -c -d 1.0 -bt dodecahedron
