@@ -96,7 +96,7 @@ gmx mdrun -deffnm md_0_1	# ON CPU
 ```
 17. Process prodmd to minimize RMSD, remove rotational and translational effects, and center the ligand in the box.
 ```
-gmx trjconv -f md_0_1.trr -s md_0_1.tpr -o md_0_1_nojump.xtc -pbc nojump -dt 10
+gmx trjconv -f md_0_1.trr -s md_0_1.tpr -o md_0_1_nojump.xtc -pbc nojump
 gmx trjconv -f md_0_1_nojump.xtc -s md_0_1.tpr -o md_0_1_normalized.pdb -fit rot+trans
 ```
 
