@@ -4,7 +4,7 @@
 wget http://www.mdtutorials.com/gmx/lysozyme/Files/nvt.mdp
 
 # Run an NVT equilibration
-gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+gmx grompp -f params/nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
 
 # Run the NVT equilibration
 gmx mdrun -deffnm nvt
