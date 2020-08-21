@@ -7,7 +7,7 @@ trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_ctr_noPBC.xtc -pbc mol -center
 gmx trjconv -f md_0_1.xtc -s md_0_1.tpr -o out.xtc -pbc nojump
 
 # reduce rot/trans 
-gmx trjconv -s out.xtc -s md_0_1.tpr -f out.xtc -o md_0_1_processed.pdb -fit rot+trans
+gmx trjconv -f out.xtc -s md_0_1.tpr -o md_0_1_processed.pdb -fit rot+trans
 
 # Calculate RMSD on the corrected trajectory
 rms -s md_0_1.tpr -f md_0_1_ctr_noPBC.xtc -o rmsd.xvg -tu ns
