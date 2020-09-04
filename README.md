@@ -1,4 +1,4 @@
-# mdcode
+# cbpcode
 
 A library of research notebooks produced to interpret MD trajectories related to ligand binding on several target complexes. This repository is to document the progress during SURE 2020 at Oregon State University.
 
