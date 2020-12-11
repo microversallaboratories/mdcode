@@ -90,7 +90,7 @@ for file in os.scandir(PDB_dl_dir):
 
 # %%
 # run ring2.0 on each pdb file
-!for fn in */*.pdb; do "Ring -i ${fn/.pdb/}.pdb -E ${fn/.pdb/_edges.txt}"; done
+!for fn in */*.pdb; do "/home/jnorth/Documents/ring/Ring -i ${fn/.pdb/}.pdb -E ${fn/.pdb/_edges.txt}"; done
 
 #%%
 import os
