@@ -17,7 +17,12 @@ cores=2
 for fn in data/JLN_1_21_1B/*/*.pdb
 do
     # all
-    get_static_contacts.py --structure ${fn} --output ${fn/.pdb/}_statcont_all.tsv --itypes all --sele2 'not (protein or nucleic or solv or lipid)'
+    # select only protein-ligand (incl. everything that's not a biomolecule) interactions
+    #get_static_contacts.py --structure ${fn} --output ${fn/.pdb/}_statcont_all_protlig.tsv --itypes all --sele2 'not (protein or nucleic or solv or lipid)'
+
+    # select every atom in the network
+    get_static_contacts.py --structure ${fn} --output ${fn/.pdb/}_statcont_all.tsv --itypes all --sele 'all' --sele2 'all'
+
 
     #   --solv HOH 
     #   --sele "chain A"
