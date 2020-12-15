@@ -5,35 +5,7 @@
 import pandas as pd
 import numpy as np
 import igraph
-# %%
-# write a function to take in data from ring-format txt-files
-import os
 
-def importRingE(fpref:str):
-    edges = pd.read_csv(fpref+"_edges.txt", sep="\t")    # read in the data to a pandas dataframe (TSV)
-    #nodes = pd.read_csv(fpref+"_nodes.txt", sep="\t")
-    return edges
-
-# %%
-# import the network of interest
-
-path = "/home/jnorth/Nextcloud/extracurriculars/publishing/research/hsu/experiments/JLN_1_21b"
-filename = "5x8x"
-fpref = path+"/"+filename
-
-df = importRingE(fpref)
-# %%
-# extract NodeId1, interaction type, and NodeId2 to a new df
-df_pruned = df[["NodeId1","Interaction","NodeId2"]]
-
-df_pruned
-
-# %% 
-# partitioning scheme for each network type
-hbond = {"HBOND:MC_MC", "HBOND:SC_MC", "HBOND:MC_SC", "HBOND:SC_SC"}
-vdw = {"VDW:SC_SC", "VDW:MC_SC", "VDW:SC_MC", "VDW:LIG_SC"}
-lig = {"IAC:LIG_SC","IAC:LIG_MC","VDW:LIG_SC"}
-ππ = {"PIPISTACK:SC_SC"}
 # %%
 # get protein structures
 # Libraries
@@ -89,22 +61,29 @@ for file in os.scandir(PDB_dl_dir):
         os.rename(file, PDB_dl_dir+"/"+newfn)
 
 # %%
-# run ring2.0 on each pdb file
-!for fn in */*.pdb; do "./dist/bin/Ring -i ${fn} -E ${fn/.pdb/_edges.txt}"; done
-
-# !for fn in */*.pdb; do "bash /home/jnorth/Documents/programs/ring_exe/dist/bin/Ring -i ${fn/.pdb/}.pdb -E ${fn/.pdb/_edges.txt}"; done
+# run getcontacts on each pdb file in the folder
+!qsub qsub_get_structnets.sh
 
 #%%
 import os
 
-rin_dfs = []
+rin_res = []
+rin_atomic = []
 fileNames = []
 for file in os.scandir(path):
-    if (file.path.endswith("_edges.txt") and file.is_file()):
-      #print(file.name.replace(".sif",""))
-      fileNames.append(file.name.split(".")[0])
-      df = pd.read_csv(file, sep='\t')[["NodeId1","Interaction","NodeId2"]].rename(columns = {'NodeId1':'resA', 'Interaction':'interacType', 'NodeId2':'resB'}, inplace = True) 
-      rin_dfs.append(df)
+    if (file.path.endswith("statcont_all.tsv") and file.is_file()):
+        # append filename
+        fileNames.append(file.name.split("_")[0])
+
+        # atomic-level interaction
+        df_a = pd.read_csv(file, sep='\t')[["frame", "interaction_type", "atom_1", "atom_2"]][["atom_1", "interaction_type", "atom_2"]]
+        
+        rin_atomic.append(df_a)
+
+        # residue-level interaction
+        df_r = df_a.apply(lambda x: x.split(":")[1]+"_"+x.split(":")[2]).rename(columns = {'atom_1':'resA', 'interaction_type':'iType', 'atom_2':'resB'}, inplace = True)
+
+
 
 # %%
 # create lists to hold each set of values for the specified interaction types
@@ -195,4 +174,3 @@ for df in rin_dfs:
   f_m["vdw"] = g["vdw"].motifs_randesu(size=4)
   f_m["lig"] = g["lig"].motifs_randesu(size=4)
   f_m["ππ"] = g["ππ"].motifs_randesu(size=4)
-  four_motifs.append(f_m)
