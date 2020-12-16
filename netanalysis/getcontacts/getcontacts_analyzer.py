@@ -5,7 +5,7 @@
 import pandas as pd
 import numpy as np
 import igraph
-
+pd.set_option("display.precision", 3)
 # %%
 # get protein structures
 # Libraries
@@ -67,6 +67,10 @@ for file in os.scandir(PDB_dl_dir):
 #%%
 import os
 
+path = "data/JLN_1_21_1B/ds_2020_12_6_13_44_58/"
+
+residuizer = lambda x: str(x).split(":")[1]+"_"+str(x).split(":")[2]
+
 rin_res = []
 rin_atomic = []
 fileNames = []
@@ -76,101 +80,195 @@ for file in os.scandir(path):
         fileNames.append(file.name.split("_")[0])
 
         # atomic-level interaction
-        df_a = pd.read_csv(file, sep='\t')[["frame", "interaction_type", "atom_1", "atom_2"]][["atom_1", "interaction_type", "atom_2"]]
-        
+        df_a = pd.read_csv(file, sep='\t', skiprows=2,names=["frame", "interaction_type", "atom_1", "atom_2"])[["atom_1", "interaction_type", "atom_2"]]
+        df_a.rename(columns={"atom_1":"atm1", "interaction_type":"iType", "atom_2":"atm2"}, inplace = True)
+
         rin_atomic.append(df_a)
 
         # residue-level interaction
-        df_r = df_a.apply(lambda x: x.split(":")[1]+"_"+x.split(":")[2]).rename(columns = {'atom_1':'resA', 'interaction_type':'iType', 'atom_2':'resB'}, inplace = True)
+        df_r = pd.DataFrame([df_a["atm1"].apply(residuizer), df_a["iType"], df_a["atm2"].apply(residuizer)]).transpose()
+        df_r.drop_duplicates()
+        df_r.rename(columns={"atm1":"resA", "iType":"iType", "atm2":"resB"}, inplace = True)
+        df_r.drop_duplicates()
+        rin_res.append(df_r)
 
+# %%
+# partitioning scheme for each network type
 
+# types are hp,sb,pc,ps,ts,vdw,hb
+
+tot = {"hp","sb","pc","ps","ts","vdw","hb"}
+hbond = {"hb"}
+vdw = {"vdw"}
+sb = {"sb"}
+πs = {"ps"}
+πc = {"pc"}
+ts = {"ts"}
+hp = {"hp"}
+
+dicts = [
+    tot,
+    hbond,
+    vdw,
+    sb,
+    πs,
+    πc,
+    ts,
+    hp
+]
 
 # %%
 # create lists to hold each set of values for the specified interaction types
 interac_cts = []
 edgelists = []
 graphs = []
-clusters = []
-cluster_sizes = []
-diams = []
 #d_norm = []
 thr_motifs = []
 four_motifs = []
 
-for df in rin_dfs:
-  # interaction counts
-  interac_cts.append(df.interacType.value_counts())
+def constrInteracCts(d:dict):
+    return df[df.iType.isin(d)][['resA', 'resB']].values.tolist()
 
-  # interaction types
-  i = {}
-  i["tot"] = df[['resA','resB']].values.tolist()
-  i["hbd"] = df[df.interacType.isin(hbond)][['resA','resB']].values.tolist()
-  i["vdw"] = df[df.interacType.isin(vdw)][['resA','resB']].values.tolist()
-  i["lig"] = df[df.interacType.isin(lig)][['resA','resB']].values.tolist()
-  i["ππ"] = df[df.interacType.isin(ππ)][['resA','resB']].values.tolist()
-  edgelists.append(i)
+for df in rin_res:
+    # interaction counts
+    interac_cts.append(df.iType.value_counts())
 
-  # graphs
-  g = {}
-  g["tot"] = igraph.Graph.TupleList(i["tot"])
-  g["hbd"] = igraph.Graph.TupleList(i["hbd"], directed=True)
-  g["vdw"] = igraph.Graph.TupleList(i["vdw"])
-  g["lig"] = igraph.Graph.TupleList(i["lig"])
-  g["ππ"] = igraph.Graph.TupleList(i["ππ"])
-  graphs.append(g)
+    # interaction types
+    i = {}
+    i["tot"] = df[['resA','resB']].values.tolist()
+    i["hbd"] = df[df.iType.isin(hbond)][['resA','resB']].values.tolist()
+    i["vdw"] = df[df.iType.isin(vdw)][['resA','resB']].values.tolist()
+    i["ππ"] = df[df.iType.isin(πs)][['resA','resB']].values.tolist()
+    i["sb"] = df[df.iType.isin(sb)][['resA','resB']].values.tolist()
+    i["ps"] = df[df.iType.isin(πs)][['resA','resB']].values.tolist()
+    i["pc"] = df[df.iType.isin(πc)][['resA','resB']].values.tolist()
+    i["ts"] = df[df.iType.isin(ts)][['resA','resB']].values.tolist()
+    i["hp"] = df[df.iType.isin(hp)][['resA','resB']].values.tolist()
+    edgelists.append(i)
 
-  # clusters
-  c = {}
-  c["tot"] = g["tot"].clusters()
-  c["hbd"] = g["hbd"].clusters()    
-  c["vdw"] = g["vdw"].clusters()
-  c["lig"] = g["lig"].clusters()
-  c["ππ"] = g["ππ"].clusters()
-  clusters.append(c)
+    # graphs
+    g = {}
+    g["tot"] = igraph.Graph.TupleList(i["tot"])
+    g["hbd"] = igraph.Graph.TupleList(i["hbd"], directed=True)
+    g["vdw"] = igraph.Graph.TupleList(i["vdw"])
+    g["ππ"] = igraph.Graph.TupleList(i["ππ"])
+    g["sb"] = igraph.Graph.TupleList(i["sb"])
+    g["ps"] = igraph.Graph.TupleList(i["ps"])
+    g["pc"] = igraph.Graph.TupleList(i["pc"])
+    g["ts"] = igraph.Graph.TupleList(i["ts"])
+    g["hp"] = igraph.Graph.TupleList(i["hp"])
+    graphs.append(g)
 
-  # cluster sizes
-  c_s = {}
-  c_s["tot"] = c["tot"].sizes()
-  c_s["hbd"] = c["hbd"].sizes()
-  c_s["vdw"] = c["vdw"].sizes()
-  c_s["lig"] = c["lig"].sizes()
-  c_s["ππ"] = c["ππ"].sizes()
-  cluster_sizes.append(c_s)
+    # motifs
+    # calculate motifs for each graph
 
-  # diameters
-  d = {}
-  d["tot"] = g["tot"].diameter()
-  d["hbd"] = g["hbd"].diameter()
-  d["vdw"] = g["vdw"].diameter()
-  d["lig"] = g["lig"].diameter()
-  d["ππ"] = g["ππ"].diameter()
-  diams.append(d)
+    # three-motifs
+    t_m = {}
+    t_m["tot"] = g["tot"].motifs_randesu()
+    t_m["hbd"] = g["hbd"].motifs_randesu()
+    t_m["vdw"] = g["vdw"].motifs_randesu()
+    t_m["ππ"] = g["ππ"].motifs_randesu()
+    t_m["sb"] = g["sb"].motifs_randesu()    
+    t_m["ps"] = g["ps"].motifs_randesu()    
+    t_m["pc"] = g["pc"].motifs_randesu()    
+    t_m["ts"] = g["ts"].motifs_randesu()    
+    t_m["hp"] = g["hp"].motifs_randesu()    
+    thr_motifs.append(t_m)
 
-  # diameter normalized to number of vertices in the network
-  #d_n = {}
+    # four-motifs
+    f_m = {}
+    f_m["tot"] = g["tot"].motifs_randesu(size=4)
+    f_m["hbd"] = g["hbd"].motifs_randesu(size=4)
+    f_m["vdw"] = g["vdw"].motifs_randesu(size=4)
+    f_m["ππ"] = g["ππ"].motifs_randesu(size=4)
+    f_m["sb"] = g["sb"].motifs_randesu(size=4)    
+    f_m["ps"] = g["ps"].motifs_randesu(size=4)    
+    f_m["pc"] = g["pc"].motifs_randesu(size=4)    
+    f_m["ts"] = g["ts"].motifs_randesu(size=4)    
+    f_m["hp"] = g["hp"].motifs_randesu(size=4)  
+    four_motifs.append(f_m)
 
-  #d_n["hbd"] = (d["hbd"]/len(g["hbd"].vs) if (len(g["hbd"].vs) != 0) else np.nan)
-  #d_n["vdW"] = (d["vdw"]/len(g["vdw"].vs) if (len(g["vdw"].vs) != 0) else np.nan)
-  #d_n["lig"] = (d["lig"]/len(g["lig"].vs) if (len(g["lig"].vs) != 0) else np.nan)
-  #d_n["ππ"] = (d["ππ"]/len(g["ππ"].vs) if (len(g["ππ"].vs) != 0) else np.nan)
-  #d_norm.append(d)
+# %%
+import numpy as np
+import sklearn
+from sklearn.metrics.pairwise import cosine_similarity
+import jinja2
 
-  # motifs
-  # calculate motifs for each graph
+def dfCosSim(n1: np.ndarray, n2: np.ndarray):
+  return cosine_similarity(n1.reshape(1,-1), n2.reshape(1,-1))
+# %%
+# residue interaction counts
+rin_interact_data = pd.DataFrame(interac_cts, index=fileNames).T
+rn_interact_cts_corr = rin_interact_data.corr(dfCosSim)
+rn_interact_cts_corr.style.background_gradient(cmap='coolwarm')
+# %%
+#Cosine Correlation Matrices for 3 motif
 
-  # three-motifs
-  t_m = {}
-  t_m["tot"] = g["tot"].motifs_randesu()
-  t_m["hbd"] = g["hbd"].motifs_randesu()
-  t_m["vdw"] = g["vdw"].motifs_randesu()
-  t_m["lig"] = g["lig"].motifs_randesu()
-  t_m["ππ"] = g["ππ"].motifs_randesu()
-  thr_motifs.append(t_m)
+#thr_motif_tot = [d['tot'] for d in thr_motifs]
+thr_motif_hbd = [d['hbd'] for d in thr_motifs]
+thr_motif_vdw = [d['vdw'] for d in thr_motifs]
+thr_motif_pipi = [d['ππ'] for d in thr_motifs]
+thr_motif_sb = [d['sb'] for d in thr_motifs]
+thr_motif_ps = [d['ps'] for d in thr_motifs]
+thr_motif_pc = [d['pc'] for d in thr_motifs]
+thr_motif_ts = [d['ts'] for d in thr_motifs]
+thr_motif_hp = [d['hp'] for d in thr_motifs]
 
-  # four-motifs
-  f_m = {}
-  f_m["tot"] = g["tot"].motifs_randesu(size=4)
-  f_m["hbd"] = g["hbd"].motifs_randesu(size=4)
-  f_m["vdw"] = g["vdw"].motifs_randesu(size=4)
-  f_m["lig"] = g["lig"].motifs_randesu(size=4)
-  f_m["ππ"] = g["ππ"].motifs_randesu(size=4)
+#rn_thr_motif_tot_data = pd.DataFrame(thr_motif_tot, index=fileNames).T
+rn_thr_motif_hbd_data = pd.DataFrame(thr_motif_hbd, index=fileNames).T
+rn_thr_motif_vdw_data = pd.DataFrame(thr_motif_vdw, index=fileNames).T
+rn_thr_motif_pipi_data = pd.DataFrame(thr_motif_pipi, index=fileNames).T
+rn_thr_motif_sb_data = pd.DataFrame(thr_motif_sb, index=fileNames).T
+rn_thr_motif_ps_data = pd.DataFrame(thr_motif_ps, index=fileNames).T
+rn_thr_motif_pc_data = pd.DataFrame(thr_motif_pc, index=fileNames).T
+rn_thr_motif_ts_data = pd.DataFrame(thr_motif_ts, index=fileNames).T
+rn_thr_motif_hp_data = pd.DataFrame(thr_motif_hp, index=fileNames).T
+
+#rn_thr_motif_tot_corr = rn_thr_motif_tot_data.corr(dfCosSim)
+rn_thr_motif_hbd_corr = rn_thr_motif_hbd_data.corr(dfCosSim)
+rn_thr_motif_vdw_corr = rn_thr_motif_vdw_data.corr(dfCosSim)
+rn_thr_motif_pipi_corr = rn_thr_motif_pipi_data.corr(dfCosSim)
+rn_thr_motif_sb_corr = rn_thr_motif_sb_data.corr(dfCosSim)
+rn_thr_motif_ps_corr = rn_thr_motif_ps_data.corr(dfCosSim)
+rn_thr_motif_pc_corr = rn_thr_motif_pc_data.corr(dfCosSim)
+rn_thr_motif_ts_corr = rn_thr_motif_ts_data.corr(dfCosSim)
+rn_thr_motif_hp_corr = rn_thr_motif_hp_data.corr(dfCosSim)
+
+# %%
+#Cosine Correlation Matrices for 3 motif
+
+#four_motif_tot = [d['tot'] for d in four_motifs]
+four_motif_hbd = [d['hbd'] for d in four_motifs]
+four_motif_vdw = [d['vdw'] for d in four_motifs]
+four_motif_pipi = [d['ππ'] for d in four_motifs]
+four_motif_sb = [d['sb'] for d in four_motifs]
+four_motif_ps = [d['ps'] for d in four_motifs]
+four_motif_pc = [d['pc'] for d in four_motifs]
+four_motif_ts = [d['ts'] for d in four_motifs]
+four_motif_hp = [d['hp'] for d in four_motifs]
+
+#rn_four_motif_tot_data = pd.DataFrame(four_motif_tot, index=fileNames).T
+rn_four_motif_hbd_data = pd.DataFrame(four_motif_hbd, index=fileNames).T
+rn_four_motif_vdw_data = pd.DataFrame(four_motif_vdw, index=fileNames).T
+rn_four_motif_pipi_data = pd.DataFrame(four_motif_pipi, index=fileNames).T
+rn_four_motif_sb_data = pd.DataFrame(four_motif_sb, index=fileNames).T
+rn_four_motif_ps_data = pd.DataFrame(four_motif_ps, index=fileNames).T
+rn_four_motif_pc_data = pd.DataFrame(four_motif_pc, index=fileNames).T
+rn_four_motif_ts_data = pd.DataFrame(four_motif_ts, index=fileNames).T
+rn_four_motif_hp_data = pd.DataFrame(four_motif_hp, index=fileNames).T
+
+#rn_four_motif_tot_corr = rn_four_motif_tot_data.corr(dfCosSim)
+rn_four_motif_hbd_corr = rn_four_motif_hbd_data.corr(dfCosSim)
+rn_four_motif_vdw_corr = rn_four_motif_vdw_data.corr(dfCosSim)
+rn_four_motif_pipi_corr = rn_four_motif_pipi_data.corr(dfCosSim)
+rn_four_motif_sb_corr = rn_four_motif_sb_data.corr(dfCosSim)
+rn_four_motif_ps_corr = rn_four_motif_ps_data.corr(dfCosSim)
+rn_four_motif_pc_corr = rn_four_motif_pc_data.corr(dfCosSim)
+rn_four_motif_ts_corr = rn_four_motif_ts_data.corr(dfCosSim)
+rn_four_motif_hp_corr = rn_four_motif_hp_data.corr(dfCosSim)
+
+# %%
+total_corr = (rn_interact_cts_corr + rn_thr_motif_hbd_corr + rn_thr_motif_vdw_corr + rn_thr_motif_ps_corr + rn_thr_motif_sb_corr + rn_thr_motif_ps_corr + rn_thr_motif_pc_corr + rn_thr_motif_ts_corr + rn_thr_motif_hp_corr + rn_four_motif_hbd_corr + rn_four_motif_vdw_corr + rn_four_motif_pipi_corr + rn_four_motif_sb_corr + rn_four_motif_ps_corr + rn_four_motif_pc_corr + rn_four_motif_ts_corr + rn_four_motif_hp_corr) / 17
+
+# %%
+renamed_total_corr.style.background_gradient(cmap='coolwarm',axis=None)

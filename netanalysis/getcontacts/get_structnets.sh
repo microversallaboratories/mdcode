@@ -14,7 +14,7 @@ cores=2
 
 ################################################### <get_stat> ##############################################
 
-for fn in */*.pdb
+for fn in */*/*/*.pdb
 do
     # all
     # select only protein-ligand (incl. everything that's not a biomolecule) interactions
