@@ -272,3 +272,5 @@ total_corr = (rn_interact_cts_corr + rn_thr_motif_hbd_corr + rn_thr_motif_vdw_co
 
 # %%
 renamed_total_corr.style.background_gradient(cmap='coolwarm',axis=None)
+
+renamed_total_corr.to_csv("total_correlation.csv")
