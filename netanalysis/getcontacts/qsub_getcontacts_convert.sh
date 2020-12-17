@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Give the job a name
-#$ -N get_structnets
+#$ -N getcontacts_convert
 
 # set the shell
 #$ -S /bin/sh
@@ -37,7 +37,7 @@ eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
 
 conda activate getcontacts
 
-bash get_structnets.sh	# Call emin
+python getcontacts_convert.py
 
 ############################################</RUN COMMANDS>###########################################
 
