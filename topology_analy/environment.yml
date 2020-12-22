@@ -1,4 +1,4 @@
-name: bio
+name: topol
 channels:
   - defaults
 dependencies:
@@ -27,31 +27,42 @@ dependencies:
     - biopython==1.78
     - chardet==3.0.4
     - cycler==0.10.0
+    - cython==0.29.21
+    - hopcroftkarp==1.2.5
     - idna==2.10
     - ipython-genutils==0.2.0
     - isort==5.6.4
+    - joblib==1.0.0
     - kiwisolver==1.3.1
     - lazy-object-proxy==1.4.3
+    - markupsafe==1.1.1
     - matplotlib==3.3.3
     - mccabe==0.6.1
     - numpy==1.19.4
     - pandas==1.1.4
     - parso==0.7.1
+    - persim==0.1.3
     - pillow==8.0.1
     - prompt-toolkit==3.0.8
     - ptyprocess==0.6.0
-    - pycairo==1.20.0
     - pygments==2.7.3
     - pylint==2.6.0
     - pyparsing==2.4.7
     - pypdb==2.0
+    - python-dateutil==2.8.1
     - python-igraph==0.8.3
     - pytz==2020.4
     - requests==2.25.0
+    - ripser==0.6.0
+    - scikit-learn==0.24.0
+    - scipy==1.5.4
+    - six==1.15.0
     - texttable==1.6.3
+    - threadpoolctl==2.1.0
     - toml==0.10.2
     - traitlets==5.0.5
     - urllib3==1.26.2
     - wcwidth==0.2.5
     - wrapt==1.12.1
-prefix: /home/jnorth/miniconda3/envs/bio
+prefix: /home/other/northj/.conda/envs/topol
+

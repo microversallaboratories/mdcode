@@ -12,7 +12,6 @@ IMPORT PACKAGES
 
 import Bio.PDB
 
-import sktda as skt
 import ripser
 from persim import plot_diagrams
 import numpy as np

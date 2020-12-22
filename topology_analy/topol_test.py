@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 # %%
 # get the structure
-struc = pdbutils.createStruct("6ZGI.pdb")
+struc = pdbutils.createStruct("6VXX.pdb")
 # %%
 # separate it by its elements
 coords = elemSpecificPH.getPositionArray(struc)

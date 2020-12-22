@@ -1,31 +1,85 @@
+
+# %%
 import pandas as pd
 import igraph
 import os
 
 path = "ds_2020_12_15_9_4_1/"
 
-residuizer = lambda x: str(x).split(":")[1]+"_"+str(x).split(":")[2]
+rin = []
+ain = []
 
-rin_res = []
-rin_atomic = []
-fileNames = []
-for file in os.scandir(path):
-    if (file.path.endswith("statcont_all.tsv") and file.is_file()):
-        # append filename
-        fileNames.append(file.name.split("_")[0])
+def r_a_INExtractor(path:str) -> tuple(list(), list()):
+    '''
+    Extracts atom and residue interaction networks from a collection of getcontacts RIN .tsv's in the specified path.
+    '''
+    # use the residuizer as a filter for the residue network
+    residuizer = lambda x: str(x).split(":")[1]+"_"+str(x).split(":")[2]
 
-        # atomic-level interaction
-        df_a = pd.read_csv(file, sep='\t', skiprows=2,names=["frame", "interaction_type", "atom_1", "atom_2"])[["atom_1", "interaction_type", "atom_2"]]
-        df_a.rename(columns={"atom_1":"atm1", "interaction_type":"iType", "atom_2":"atm2"}, inplace = True)
+    rin_res = []    # residue interaction network
+    rin_atm = [] # atom interaction network
+    fileNames = []
+    for file in os.scandir(path):
+        if (file.path.endswith("statcont_all.tsv") and file.is_file()):
+            # append filename
+            fileNames.append(file.name.split("_")[0])
 
-        rin_atomic.append(df_a)
+            # atomic-level interaction
+            df_a = pd.read_csv(file, sep='\t', skiprows=2,names=["frame", "interaction_type", "atom_1", "atom_2"])[["atom_1", "interaction_type", "atom_2"]]
+            df_a.rename(columns={"atom_1":"atm1", "interaction_type":"iType", "atom_2":"atm2"}, inplace = True)
 
-        # residue-level interaction
-        df_r = pd.DataFrame([df_a["atm1"].apply(residuizer), df_a["iType"], df_a["atm2"].apply(residuizer)]).transpose()
-        df_r.drop_duplicates()
-        df_r.rename(columns={"atm1":"resA", "iType":"iType", "atm2":"resB"}, inplace = True)
-        df_r.drop_duplicates()
-        rin_res.append(df_r)
+            rin_atm.append(df_a)
+
+            # residue-level interaction
+            df_r = pd.DataFrame([df_a["atm1"].apply(residuizer), df_a["iType"], df_a["atm2"].apply(residuizer)]).transpose()
+            df_r.drop_duplicates()
+            df_r.rename(columns={"atm1":"resA", "iType":"iType", "atm2":"resB"}, inplace = True)
+            df_r.drop_duplicates()
+            rin_res.append(df_r)
+    
+    return (rin_atm, rin_res)
+    '''
+    Extracts atom and residue interaction networks from a collection of getcontacts RIN .tsv's in the specified path.
+    '''
+    # use the residuizer as a filter for the residue network
+    residuizer = lambda x: str(x).split(":")[1]+"_"+str(x).split(":")[2]
+
+    rin_res = []    # residue interaction network
+    rin_atm = [] # atom interaction network
+    fileNames = []
+    for file in os.scandir(path):
+        if (file.path.endswith("statcont_all.tsv") and file.is_file()):
+            # append filename
+            fileNames.append(file.name.split("_")[0])
+
+            def getAINdf(file: file):
+                df = pd.read_csv(file, sep='\t', skiprows=2,names=["frame", "interaction_type", "atom_1", "atom_2"])[["atom_1", "interaction_type", "atom_2"]]
+                df.rename(columns={"atom_1":"atm1", "interaction_type":"iType", "atom_2":"atm2"}, inplace = True)
+                return df
+
+            # atomic-level interaction
+            df_a = pd.read_csv(file, sep='\t', skiprows=2,names=["frame", "interaction_type", "atom_1", "atom_2"])[["atom_1", "interaction_type", "atom_2"]]
+            df_a.rename(columns={"atom_1":"atm1", "interaction_type":"iType", "atom_2":"atm2"}, inplace = True)
+
+            def getAINam(df:pd.DataFrame) -> list():
+                '''
+                Returns adjacency matrix from an atomic-level interaction dataframe.
+                '''
+                a_el = df_a[['atm1','atm2']].values.tolist()  # edge list
+                return igraph.Graph.TupleList(a_el).get_adjacency()
+
+            rin_atm.append(df_a)
+
+            # residue-level interaction
+            df_r = pd.DataFrame([df_a["atm1"].apply(residuizer), df_a["iType"], df_a["atm2"].apply(residuizer)]).transpose()
+            df_r.drop_duplicates()
+            df_r.rename(columns={"atm1":"resA", "iType":"iType", "atm2":"resB"}, inplace = True)
+            df_r.drop_duplicates()
+            rin_res.append(df_r)
+    
+    return (rin_atm, rin_res)
+
+(ain, rin) = r_a_IN_Extractor(path)
 
 # %%
 # partitioning scheme for each network type
@@ -64,7 +118,7 @@ four_motifs = []
 def constrInteracCts(d:dict):
     return df[df.iType.isin(d)][['resA', 'resB']].values.tolist()
 
-for df in rin_res:
+for df in rin:
     # interaction counts
     interac_cts.append(df.iType.value_counts())
 
