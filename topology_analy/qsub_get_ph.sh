@@ -39,7 +39,7 @@ conda activate topol
 
 wget https://files.rcsb.org/view/6VXX.pdb
 
-python topol_test.py
+python topol_ph.py
 
 ############################################</RUN COMMANDS>###########################################
 
