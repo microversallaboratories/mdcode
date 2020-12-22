@@ -1,3 +1,5 @@
+
+# %%
 # import statements
 import pandas as pd
 
@@ -35,9 +37,10 @@ for proteins in found:  # for items in # for the items in the list,
 dfm = pd.DataFrame(metadata) # convert to a Pandas DF
 dfm.to_csv('metadata_'+now+'.csv')      # save as a CSV file
 
+dfm.sort_values()
+
 # %%
 parser = PDBParser()       # create a parser
-pdbs = list()
 pdbl = PDBList()
 
 # Download all PDB structures in the previous list if they aren't there
