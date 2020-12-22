@@ -9,6 +9,9 @@ import elemSpecificPH
 import scipy
 
 from ripser import ripser
+from persim import plot_diagrams
+
+import matplotlib.pyplot as plt
 
 # %%
 # get the structure
@@ -26,4 +29,6 @@ a = strucarray[1]
 diagrams = ripser(a)['dgms']
 
 # %%
-plot_diagrams(diagrams, show=True)
+plot_diagrams(diagrams, show=False)
+
+plt.savefig("persistent_homology.png")
