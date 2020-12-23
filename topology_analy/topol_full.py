@@ -26,31 +26,13 @@ strucarray = elemSpecificPH.struc2elemPosArrays(struc)
 a = strucarray[1]
 
 # %%
-# PERSISTENT HOMOLOGY
-
-diagrams = ripser(a)['dgms']
-plot_diagrams(diagrams, show=False)
-
-plt.savefig("persistent_homology.png")
-
-# %%
-# KMAPPER
-
-# Import the class
-import kmapper as km
-
-# Initialize
-mapper = km.KeplerMapper(verbose=1)
-
-# Fit to and transform the data
-projected_data = mapper.fit_transform(data, projection=[0,1]) # X-Y axis
-
-# Create dictionary called 'graph' with nodes, edges and meta-information
-graph = mapper.map(projected_data, data, nr_cubes=10)
-
-# Visualize it
-mapper.visualize(graph, path_html="make_circles_keplermapper_output.html",
-                 title="make_circles(n_samples=5000, noise=0.03, factor=0.3)")
+# for each substructure (element selection) to analyze,
+for i in list(range(strucarray)):
+    # PERSISTENT HOMOLOGY
+    elemSpecificPH.printPHDiagram(a, i) # print the persistent homology diagram
+    
+    # KMAPPER
+    elemSpecificPH.visKMapper(a, i)
 
 # %%
 

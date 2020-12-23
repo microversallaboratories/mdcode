@@ -16,6 +16,8 @@ import ripser
 from persim import plot_diagrams
 import numpy as np
 
+import kmapper as km
+
 '''
 FUNCTIONS
 '''
@@ -102,8 +104,27 @@ def combineElementTypes(struc1:Bio.PDB.Structure.Structure, struc2:Bio.PDB.Struc
 
     return
 
-# compute distance matrix between all atoms in a structure
-def calcDistanceMatrix(struc1: Bio.PDB.Structure.Structure) -> Bio.PDB.Structure.Structure:
 
+# compute persistent homology diagram from a dataset using ripser
+def printPHDiagram(data: np.array, id:str):
+    '''
+    Bundles the functions used to calculate a PH diagram from a dataset.
+    '''
+    diagrams = ripser(data)['dgms']
+    plot_diagrams(diagrams, show=False)
+    plt.savefig("persistent_homology_"+id+".png")
     return
 
+# calculate a mapper visualization
+def visKMapper(data: np.array, id: str):
+    '''
+    Bundles the functions used to calculate a KMapper visualization. Exports it as an .html object.
+    '''
+    
+    mapper = km.KeplerMapper(verbose=1)     # init
+    projected_data = mapper.fit_transform(data, projection=[0,1]) # fit, transform data to X-Y axis
+    graph = mapper.map(projected_data, data, nr_cubes=10)   # Create dictionary called 'graph' with nodes, edges and meta-information
+    mapper.visualize(graph, 
+                    path_html="make_circles_keplermapper_output"+id+".html",
+                    title="make_circles(n_samples=5000, noise=0.03, factor=0.3)")
+    return
