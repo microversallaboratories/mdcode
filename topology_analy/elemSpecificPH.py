@@ -13,10 +13,12 @@ IMPORT PACKAGES
 import Bio.PDB
 
 import ripser
-from persim import plot_diagrams
 import numpy as np
-
 import kmapper as km
+import scipy
+from ripser import ripser
+from persim import plot_diagrams
+import matplotlib.pyplot as plt
 
 '''
 FUNCTIONS
@@ -111,7 +113,7 @@ def printPHDiagram(data: np.array, id:str):
     Bundles the functions used to calculate a PH diagram from a dataset.
     '''
     diagrams = ripser(data)['dgms']
-    plot_diagrams(diagrams, show=False)
+    plot_diagrams(diagrams,title="Persistence diagram, #"+id , show=False)
     plt.savefig("persistent_homology_"+id+".png")
     return
 
@@ -123,7 +125,7 @@ def visKMapper(data: np.array, id: str):
     
     mapper = km.KeplerMapper(verbose=1)     # init
     projected_data = mapper.fit_transform(data, projection=[0,1]) # fit, transform data to X-Y axis
-    graph = mapper.map(projected_data, data, nr_cubes=10)   # Create dictionary called 'graph' with nodes, edges and meta-information
+    graph = mapper.map(projected_data, data,)   # Create dictionary called 'graph' with nodes, edges and meta-information
     mapper.visualize(graph, 
                     path_html="make_circles_keplermapper_output"+id+".html",
                     title="make_circles(n_samples=5000, noise=0.03, factor=0.3)")
