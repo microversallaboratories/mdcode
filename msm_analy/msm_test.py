@@ -122,11 +122,12 @@ tica_concatenated = np.concatenate(tica_output)
 
 # %%
 # visualize TICA components
+'''
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 pyemma.plots.plot_feature_histograms(
     tica_concatenated,
     ax=axes[0],
-    feature_labels=['IC1', 'IC2', 'IC3', 'IC4'],
+    #feature_labels=['IC1', 'IC2', 'IC3', 'IC4'],
     ylog=True)
 pyemma.plots.plot_density(*tica_concatenated[:, :2].T, ax=axes[1], logscale=True)
 axes[1].set_xlabel('IC 1')
@@ -134,6 +135,8 @@ axes[1].set_ylabel('IC 2')
 fig.tight_layout()
 
 fig.savefig("TICA_components.png")
+
+'''
 
 # %%
 # metastability 
@@ -200,7 +203,7 @@ print('fraction of counts used = {:.2f}'.format(msm.active_count_fraction))
 
 # %%
 # chapman-kolmogorov
-states = 5
+nstates = 5
 cktest = msm.cktest(nstates, mlags=6)
 pyemma.plots.plot_cktest(cktest, dt=0.1, units='ns');
 
