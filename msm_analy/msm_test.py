@@ -152,7 +152,7 @@ fig.savefig("metastability.png")
 
 # %%
 # discretization
-n_clustercenters = [5, 10, 30, 75, 200, 450]
+n_clustercenters = [5, 10, 30, 75]
 
 scores = np.zeros((len(n_clustercenters), 5))
 for n, k in enumerate(n_clustercenters):
@@ -207,6 +207,7 @@ nstates = 5
 cktest = msm.cktest(nstates, mlags=6)
 pyemma.plots.plot_cktest(cktest, dt=0.1, units='ns');
 
+fig.savefig("cktest.png")
 
 # %%
 # spectral analysis
@@ -251,7 +252,7 @@ axes[0].set_xlabel('implied timescale index')
 axes[0].set_ylabel('implied timescales / ns')
 axes[1].set_xticks(range(1, nits))
 axes[1].set_xticklabels(
-    ["{:d}/{:d}".format(k, k + 1) for k in range(1, nits + 2)],
+    ["{:d}/{:d}".format(k, k + 1) for k in range(1, nits)],
     rotation=45)
 axes[1].set_xlabel('implied timescale indices')
 axes[1].set_ylabel('timescale separation')
