@@ -10,8 +10,8 @@ from pyemma.util.contexts import settings
 # %%
 
 # import PDB and trajectories as filepath strings
-pdb = 'md_0_1_298.pdb'
-files = 'md_0_1_298_reduced.xtc'
+pdb = 'data/md_0_1_298.pdb'
+files = 'data/md_0_1_298_reduced.xtc'
 
 # %%
 
@@ -346,7 +346,7 @@ torsions_source = pyemma.coordinates.source(files, features=torsions_feat)
 pyemma.coordinates.save_trajs(
     torsions_source,
     pcca_samples,
-    outfiles=['./data/pcca{}_10samples.pdb'.format(n + 1)
+    outfiles=['pcca{}_10samples.pdb'.format(n + 1)
               for n in range(msm.n_metastable)])
 
 # %%
