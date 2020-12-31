@@ -155,7 +155,7 @@ def findk(tica_output, k):
     cluster = pyemma.coordinates.cluster_kmeans(
     tica_output, k=k, max_iter=50, stride=10)
     dtrajs_concatenated = np.concatenate(cluster.dtrajs)
-    return cluster
+    return (cluster, dtrajs_concatenated)
 
 def findTICA2(tica_concatenated, cluster):
     ig, ax = plt.subplots(figsize=(4, 4))
@@ -168,3 +168,163 @@ def findTICA2(tica_concatenated, cluster):
 
     fig.savefig("TICA_2.png")
     return 
+
+def spectralAnalysis(msm):
+    timescales_mean = msm.sample_mean('timescales', k=nits)
+    timescales_std = msm.sample_std('timescales', k=nits)
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    
+    def its_separation_err(ts, ts_err):
+        """
+        Error propagation from ITS standard deviation to timescale separation.
+        """
+        return ts[:-1] / ts[1:] * np.sqrt(
+            (ts_err[:-1] / ts[:-1])**2 + (ts_err[1:] / ts[1:])**2)
+
+    axes[0].errorbar(
+        range(1, nits + 1),
+        timescales_mean, 
+        yerr=timescales_std, 
+        fmt='.', markersize=10)
+    axes[1].errorbar(
+        range(1, nits),
+        timescales_mean[:-1] / timescales_mean[1:], 
+        yerr=its_separation_err(
+            timescales_mean, 
+            timescales_std), 
+        fmt='.', 
+        markersize=10,
+        color='C0')
+
+    for i, ax in enumerate(axes):
+        ax.set_xticks(range(1, nits + 1))
+        ax.grid(True, axis='x', linestyle=':')
+        
+    axes[0].axhline(msm.lag * 0.1, lw=1.5, color='k')
+    axes[0].axhspan(0, msm.lag * 0.1, alpha=0.3, color='k')
+    axes[0].set_xlabel('implied timescale index')
+    axes[0].set_ylabel('implied timescales / ns')
+    axes[1].set_xticks(range(1, nits))
+    axes[1].set_xticklabels(
+        ["{:d}/{:d}".format(k, k + 1) for k in range(1, nits)],
+        rotation=45)
+    axes[1].set_xlabel('implied timescale indices')
+    axes[1].set_ylabel('timescale separation')
+    fig.tight_layout()
+
+    fig.savefig("spectral_analysis.png")
+    return
+
+def cktester(msm):
+    cktest = msm.cktest(nstates, mlags=6)
+    pyemma.plots.plot_cktest(cktest, dt=0.1, units='ns');
+    fig.savefig("cktest.png")
+    return
+
+def stationaryDistrib(tica_concatenated, msm, dtrajs_concatenated):
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True)
+    pyemma.plots.plot_contour(
+        *tica_concatenated[:, :2].T,
+        msm.pi[dtrajs_concatenated],
+        ax=axes[0],
+        mask=True,
+        cbar_label='stationary distribution')
+    pyemma.plots.plot_free_energy(
+        *tica_concatenated[:, :2].T,
+        weights=np.concatenate(msm.trajectory_weights()),
+        ax=axes[1],
+        legacy=False)
+    for ax in axes.flat:
+        ax.set_xlabel('IC 1')
+    axes[0].set_ylabel('IC 2')
+    axes[0].set_title('Stationary distribution', fontweight='bold')
+    axes[1].set_title('Reweighted free energy surface', fontweight='bold')
+    fig.tight_layout()
+
+    fig.savefig("stationary_distrib.png")
+    return
+
+def principalEigvecs(msm, tica_concatenated, dtrajs_concatenated):
+    eigvec = msm.eigenvectors_right()
+    print('The first eigenvector is one: {} (min={}, max={})'.format(
+        np.allclose(eigvec[:, 0], 1, atol=1e-15), eigvec[:, 0].min(), eigvec[:, 0].max()))
+
+    fig, axes = plt.subplots(1, 4, figsize=(15, 3), sharex=True, sharey=True)
+    for i, ax in enumerate(axes.flat):
+        pyemma.plots.plot_contour(
+            *tica_concatenated[:, :2].T,
+            eigvec[dtrajs_concatenated, i + 1],
+            ax=ax,
+            cmap='PiYG',
+            cbar_label='{}. right eigenvector'.format(i + 2),
+            mask=True)
+        ax.set_xlabel('IC 1')
+    axes[0].set_ylabel('IC 2')
+    fig.tight_layout()
+
+    fig.savefig("principal_eigvecs.png")
+    return
+
+def first2TICAdims(msm, tica_concatenated,dtrajs_concatenated):
+    fig, axes = plt.subplots(1, 5, figsize=(15, 3), sharex=True, sharey=True)
+    for i, ax in enumerate(axes.flat):
+        pyemma.plots.plot_contour(
+            *tica_concatenated[:, :2].T,
+            msm.metastable_distributions[i][dtrajs_concatenated],
+            ax=ax,
+            cmap='afmhot_r', 
+            mask=True,
+            cbar_label='metastable distribution {}'.format(i + 1))
+        ax.set_xlabel('IC 1')
+    axes[0].set_ylabel('IC 2')
+    fig.tight_layout()
+
+    fig.savefig("first_2_TICA_dims.png")
+    return
+
+def metastability2(msm, dtrajs_concatenated, tica_concatenated, nstates):
+    metastable_traj = msm.metastable_assignments[dtrajs_concatenated]
+
+    fig, ax = plt.subplots(figsize=(5, 4))
+    _, _, misc = pyemma.plots.plot_state_map(
+        *tica_concatenated[:, :2].T, metastable_traj, ax=ax)
+    ax.set_xlabel('IC 1')
+    ax.set_ylabel('IC 2')
+    misc['cbar'].set_ticklabels([r'$\mathcal{S}_%d$' % (i + 1)
+                                for i in range(nstates)])
+    fig.tight_layout()
+
+    fig.savefig("metastability2.png")
+
+def writeTrajsToDisk(msm, torsions_feat):
+    pcca_samples = msm.sample_by_distributions(msm.metastable_distributions, 10)
+    torsions_source = pyemma.coordinates.source(files, features=torsions_feat)
+    pyemma.coordinates.save_trajs(
+        torsions_source,
+        pcca_samples,
+        outfiles=['pcca{}_10samples.pdb'.format(n + 1)
+                for n in range(msm.n_metastable)])
+    return
+
+def plotFreeEnergyDiag(msm):
+    print('state\tπ\t\tG/kT')
+    for i, s in enumerate(msm.metastable_sets):
+        p = msm.pi[s].sum()
+        print('{}\t{:f}\t{:f}'.format(i + 1, p, -np.log(p)))
+    return
+
+def extractMFPT(msm, units: str) -> pd.DataFrame:
+    from itertools import product
+
+    mfpt = np.zeros((nstates, nstates))
+    for i, j in product(range(nstates), repeat=2):
+        mfpt[i, j] = msm.mfpt(
+            msm.metastable_sets[i],
+            msm.metastable_sets[j])
+
+    from pandas import DataFrame
+    print('MFPT / '+units+':')
+    df = DataFrame(np.round(mfpt, decimals=2), index=range(1, nstates + 1), columns=range(1, nstates + 1))
+    
+    return df

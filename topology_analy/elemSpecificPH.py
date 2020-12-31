@@ -19,6 +19,9 @@ import scipy
 from ripser import ripser
 from persim import plot_diagrams
 import matplotlib.pyplot as plt
+import pandas as pd
+
+import matplotlib.pyplot as plt
 
 '''
 FUNCTIONS
@@ -115,6 +118,10 @@ def printPHDiagram(data: np.array, id:str):
     diagrams = ripser(data)['dgms']
     plot_diagrams(diagrams,title="Persistence diagram, #"+id , show=False)
     plt.savefig("persistent_homology_"+id+".png")
+    
+    data = pd.DataFrame(plt.gca().get_lines().get_xydata())
+    data.to_csv("ph_"+id+".csv")
+    
     return
 
 # calculate a mapper visualization
